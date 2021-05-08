@@ -1,5 +1,9 @@
 from functools import reduce
 
+class Number:
+    def __init__(self, number):
+        self.number = number
+
 numbers = [
     {"number": 1},
     {"number": 2},
@@ -9,7 +13,6 @@ numbers = [
 ]
 
 def add(x, y):
-    return x + y["number"]
-
-sum = reduce(add, numbers, 0)
+    return x + y.number
+sum = reduce(add, [Number(number["number"]) for number in numbers], 0)
 print(sum)
