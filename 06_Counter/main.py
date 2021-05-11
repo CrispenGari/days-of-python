@@ -3,5 +3,8 @@ from random import randrange
 
 numbers = [randrange(0, 4) for i in range(20)]
 
-numbers_dict = Counter(numbers)
-print(numbers_dict)
+counter = Counter()
+for number in numbers:
+    counter[number] += 1
+
+print(counter.most_common(2))
