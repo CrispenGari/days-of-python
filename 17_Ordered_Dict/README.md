@@ -1,48 +1,27 @@
-### Generators
-Generators simplifies creation of iterators. 
-A generator is a function that produces a sequence of results instead of a single value.
-> So a generator is also an iterator.
-
-#### A simple generator
+### OrderedDict
+Return an instance of a dict subclass that has methods specialized for rearranging dictionary order.
+* Elements are arranged in the way they are added.
+* This is coming from the collection package
+#### A simple OrderedDict
 ````python
-def y_range(n:int):
-    while n > 0:
-        yield n
-        n-=1
+from collections import OrderedDict
 
-a = y_range(10)
-print(a) # <generator object y_range at 0x0000022CDF411900>
+my_dict = OrderedDict()
+my_dict["name"] = "Name"
+my_dict["age"] = 54
+my_dict["sex"] = "Male"
+print(my_dict) ## OrderedDict([('name', 'Name'), ('age', 54), ('sex', 'Male')])
 ````
-Printing the elements of a generator:
+Printing the elements of an OrderedDict():
 ```python
-def y_range(n:int):
-    while n > 0:
-        yield n
-        n-=1
+from collections import OrderedDict
+my_dict = OrderedDict()
+for i in range(10):
+    my_dict[i] = i**2
 
-ten = y_range(10)
-
-while True:
-    try:
-        print(next(ten))
-    except StopIteration:
-        break
+for i in range(10):
+    print(my_dict[i])
 ```
-### Generator Expressions
-
-```python
-x = (i*i for i in range(5))
-print(type(x), x)
-```
-Printing elements of a generator expression:
-```python
-x = (i*i for i in range(5))
-
-while True:
-    try:
-        print(next(x))
-    except StopIteration:
-        break
-```
-
-> That's the basics about generators. [Ref](https://anandology.com/python-practice-book/functional-programming.html)
+Maybe there's a special case where one would need to apply this because the  python `dict` already have the functionality
+an OrderedDict has.
+> Python Docs. [Ref](https://docs.python.org/3/library/collections.html)
