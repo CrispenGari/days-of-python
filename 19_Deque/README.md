@@ -1,48 +1,24 @@
-### Generators
-Generators simplifies creation of iterators. 
-A generator is a function that produces a sequence of results instead of a single value.
-> So a generator is also an iterator.
+### Deque
+A double ended que. Which allows us to add or remove items from both ends.
+* This is also coming from collections
 
-#### A simple generator
+
+
+#### A simple deque
 ````python
-def y_range(n:int):
-    while n > 0:
-        yield n
-        n-=1
-
-a = y_range(10)
-print(a) # <generator object y_range at 0x0000022CDF411900>
+from collections import deque
+my_deque = deque([1, 2, 3])
+print(my_deque)
 ````
-Printing the elements of a generator:
-```python
-def y_range(n:int):
-    while n > 0:
-        yield n
-        n-=1
-
-ten = y_range(10)
-
-while True:
-    try:
-        print(next(ten))
-    except StopIteration:
-        break
-```
-### Generator Expressions
+Adding elements to a deque in both ends
 
 ```python
-x = (i*i for i in range(5))
-print(type(x), x)
+from collections import deque
+my_deque = deque([1, 2, 3])
+my_deque.append(4) # adding elements to the right
+my_deque.appendleft(-2) # adding elements to the left
+print(my_deque)
 ```
-Printing elements of a generator expression:
-```python
-x = (i*i for i in range(5))
+There are a lot of methods that are in the ``deque`` collections, which can be found in the official docs.
 
-while True:
-    try:
-        print(next(x))
-    except StopIteration:
-        break
-```
-
-> That's the basics about generators. [Ref](https://anandology.com/python-practice-book/functional-programming.html)
+> Python Docs. [Ref](https://docs.python.org/3/library/collections.html)
