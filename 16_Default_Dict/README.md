@@ -1,48 +1,30 @@
-### Generators
-Generators simplifies creation of iterators. 
-A generator is a function that produces a sequence of results instead of a single value.
-> So a generator is also an iterator.
+### Default Dict
+Returns a new dictionary-like object. defaultdict is a subclass of the built-in dict class. It overrides one method and adds one writable instance variable.
+* This dictionary is different from the ``dict`` in the sense that if we try to access elements that doesn't exist in a `dict` it raises an error but in this one it doesn't throw an error, instead it returns a default value. Let's see this in action. 
+* This default dict is comming from ``collections``
 
-#### A simple generator
+#### A simple DefaultDict
 ````python
-def y_range(n:int):
-    while n > 0:
-        yield n
-        n-=1
+from collections import defaultdict
 
-a = y_range(10)
-print(a) # <generator object y_range at 0x0000022CDF411900>
+default_dict = defaultdict(list, {
+    "name": "Hello",
+    "age" : 21,
+    "yob": 2001
+})
+print(default_dict)
 ````
-Printing the elements of a generator:
+Printing the elements of a defaultdict:
 ```python
-def y_range(n:int):
-    while n > 0:
-        yield n
-        n-=1
+from collections import defaultdict
 
-ten = y_range(10)
-
-while True:
-    try:
-        print(next(ten))
-    except StopIteration:
-        break
+default_dict = defaultdict(int, {
+    "name": "Hello",
+    "age" : 21,
+    "yob": 2001
+})
+print(f"Name: {default_dict['name']}, Age: {default_dict['age']}, YOB: {default_dict['yob']}, Gender: {default_dict['gender']}")
 ```
-### Generator Expressions
+If the key of an element does not exist it will return ``0`` this is because we have set default as ``int``. We can set it to an `float`, a ``list`` or whatever we want.
 
-```python
-x = (i*i for i in range(5))
-print(type(x), x)
-```
-Printing elements of a generator expression:
-```python
-x = (i*i for i in range(5))
-
-while True:
-    try:
-        print(next(x))
-    except StopIteration:
-        break
-```
-
-> That's the basics about generators. [Ref](https://anandology.com/python-practice-book/functional-programming.html)
+> Python Docs. [Ref](https://docs.python.org/3/library/collections.html)
