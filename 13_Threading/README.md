@@ -303,4 +303,5 @@ print(threading.activeCount())
 ```
 
 ### Reference
+* [Multi Threading](https://www.geeksforgeeks.org/multithreading-in-python-set-2-synchronization/)
 * [Ref](https://docs.python.org/3/library/threading.html)

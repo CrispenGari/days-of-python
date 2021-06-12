@@ -1,5 +1,4 @@
 import threading, os, time
-
 numbers = []
 def count(n:int)->None:
     global numbers
