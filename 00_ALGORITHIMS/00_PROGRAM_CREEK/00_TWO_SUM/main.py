@@ -6,7 +6,7 @@ def two_sum(numbers: list, target: int) -> Tuple[int, int]:
     if it exists in these "needed" numbers.
     """
     if not numbers:
-        return None
+        return -1, -1
 
     hash_map = {}
 
@@ -20,10 +20,10 @@ def two_sum(numbers: list, target: int) -> Tuple[int, int]:
             return index1, index2
         else:
             hash_map[target - n] = i
-    return None
+    return -1, -1
 
 
 assert two_sum([2, 7, 11, 15], 9) == (0, 1), "condition 1 failed"
 assert two_sum([2, 7, 11, 15], 26) == (2, 3), "condition 2 failed"
-assert two_sum([2, 7, 11, 16], 26) == None, "condition 3 failed"
-assert two_sum([], 26) == None, "condition 4 failed"
+assert two_sum([2, 7, 11, 16], 26) == (-1, -1), "condition 3 failed"
+assert two_sum([], 26) == (-1, -1), "condition 4 failed"
