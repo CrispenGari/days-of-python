@@ -88,6 +88,14 @@ The `setup` functions takes in a lot of keyword args which are:
 9. keywords - keywords
 10. classifiers - you can read more about them [here](https://pypi.org/classifiers/)
 
+Before anything, we will need to test run the following command to check our source distribution.
+
+```shell
+python setup.py sdist
+```
+
+> The above command gave us warning, on what we attributes are we missing in our `package` that can help it to be a better package.
+
 After this has been done we can build our package by running the following command:
 
 ```shell
