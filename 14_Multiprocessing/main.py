@@ -1,37 +1,25 @@
+import multiprocessing as mp
+import numpy as np
+import time
 
-import multiprocessing, os, time
+cpu_count = mp.cpu_count()
 
-def process_one(n: int)->None:
-    for i in range(n):
-        time.sleep(1)
-        print(f"Process 1: {i}")
+SEED = 42
+np.random.RandomState(SEED)
+data = np.random.randint(0, 10, size=[200000, 5]).tolist()
+print(data[:5])
 
-def process_two(n: int)->None:
-    for i in range(n):
-        time.sleep(1)
-        print(f"Process 2: {i}")
+def howmany_within_range_rowonly(row, minimum=4, maximum=8):
+    count = 0
+    for n in row:
+        if minimum <= n <= maximum:
+            count = count + 1
+    return count
 
-def process_three(n: int)->None:
-    for i in range(n):
-        time.sleep(2)
-        print(f"Process 3: {i}")
+pool = mp.Pool(mp.cpu_count())
 
-def process_four(n: int)->None:
-    for i in range(n):
-        time.sleep(.9)
-        print(f"Process 4: {i}")
+results = pool.map(howmany_within_range_rowonly, [row for row in data])
 
-A = multiprocessing.Process(target=process_one, args=(4, ), name="process1 1")
-B = multiprocessing.Process(target=process_two, args=(3, ), name="process1 2")
-C = multiprocessing.Process(target=process_three, args=(4, ), name="process1 3")
-D = multiprocessing.Process(target=process_four, args=(5, ), name="process1 4")
+pool.close()
 
-### Starting the processes
-
-if __name__ == '__main__':
-    A.start()
-    B.start()
-    C.start()
-    C.join() # wait until C finishes
-    D.start()
-
+print(results[:10])

@@ -106,6 +106,91 @@ Process 4: 4
 
 Everything behaves like Threading which was discussed [here](https://github.com/CrispenGari/days-of-python/tree/main/13_Threading).
 
+### A practical Example 
+In this section we are going to practically demostrate by use of example how muilti-processing works.
+
+### Checking how many `cpu`'s on a computer using `multiprocessing`
+To check the ``cpu`` in `multiprocessing` you can do it as follows:
+
+```py
+import multiprocessing as mp
+cpu_count = mp.cpu_count()
+print(f"CPU count: {cpu_count}")
+```
+
+> I have `4` cpu's on my computer.
+ 
+In parallel processing, there are two types of execution: `Synchronous` and `Asynchronous`.
+
+### synchronous execution 
+* is when the processes are completed in the same order in which it was started. This is achieved by locking the main program until the respective processes are finished.
+
+### Asynchronous execution
+* this doesn’t involve locking. As a result, the order of results can get mixed up but usually gets done quicker.
+
+There are 2 main objects in `multiprocessing` to implement parallel execution of a function: The `Pool` Class and the `Process` Class.
+
+1. Pool Class
+   * Synchronous execution
+      * `Pool.map()` and `Pool.starmap()`
+      * `Pool.apply()`
+   * Asynchronous execution
+      * `Pool.map_async()` and `Pool.starmap_async()`
+      * `Pool.apply_async())`
+2. Process Class
+We have already looked at this class from the previous examples.
+
+### Using the `Pool` class
+We are going to apply use the ``Pool`` class to count how many numbers are present in a given range. First we are 
+going to generate random numbers using numpy as follows:
+
+```python
+import numpy as np
+
+SEED = 42
+np.random.RandomState(SEED)
+data = np.random.randint(0, 10, size=[200000, 5]).tolist()
+print(data[:5])
+```
+Solution of our problem without ``parallelization`.
+
+````python
+def howmany_within_range(row, minimum, maximum):
+    """Returns how many numbers lie within `maximum` and `minimum` in a given `row`"""
+    count = 0
+    for n in row:
+        if minimum <= n <= maximum:
+            count = count + 1
+    return count
+
+start = time.time()
+results = []
+for row in data:
+    results.append(howmany_within_range(row, minimum=4, maximum=8))
+print("Took {}s".format(time.time() - start))
+````
+If we will do it without parallization the output will be as follows:
+
+```shell
+Took 0.4497089385986328s
+```
+The `Pool` class provides some methods to make any function in it like:
+
+1. ``map``
+2. ``str_map``
+3. ``apply``
+
+The difference between the ``apply`` and `map` functions is that the `apply` takes in `args`
+as it's parameter which are the arguments of the function, whilist the ``map`` takes an `iteratable`.
+
+### 1. Pool.apply()
+In the following code we are going to perform the same task like before but using parallization method called `apply`
+
+```python
+
+```
+
+
 ### Credits
 
 * [Geeks](https://www.geeksforgeeks.org/multiprocessing-python-set-1/)
