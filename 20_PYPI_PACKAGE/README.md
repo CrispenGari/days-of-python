@@ -116,6 +116,12 @@ After installing twine then you can run the following command to upload the pack
 twine upload dist/*
 ```
 
+> Error:  If you are getting an error saying _"File already exists. See https://pypi.org/help/#file-name-reuse for more information."_
+
+```shell
+ twine upload --skip-existing dist/*
+```
+
 > Make sure you are running these commands in the `root` directory of your project. After that your package will be available and users can be able to use after installing them using `pip`.
 
 > Also note that publishing your `pypi` does not requires you to use `git` or to upload code on github.
