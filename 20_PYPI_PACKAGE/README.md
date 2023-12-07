@@ -101,6 +101,11 @@ After this has been done we can build our package by running the following comma
 ```shell
 python setup.py sdist bdist_wheel
 ```
+> If you are getting an error saying `"error: invalid command 'bdist_wheel'"` you will need to install `wheel` by running the following command and try again
+
+```shell
+pip install wheel
+```
 
 ### Uploading a package on `PiPY`
 
