@@ -1,9 +1,10 @@
 ### Decorators
+
 A decorator is a function that takes another function and extends the behavior of the latter function without explicitly modifying it
 
 #### A simple decorator
 
-````python
+```python
 def simple_decorator(fn):
     def wrapper():
         print("Start")
@@ -12,20 +13,24 @@ def simple_decorator(fn):
     return wrapper()
 def say_hello():
     print("Hello there human")
+
 simple_decorator(say_hello)
-````
-* We created a function that accept a function as it's argument.
-* Then as python function can have functions inside them a decorator has an inner function which will be returned
-by the decorator function.
-  
-* When we call ``simple_decorator`` and pass `say_hello` in it the following will be the output.
-````shell
+```
+
+- We created a function that accept a function as it's argument.
+- Then as python function can have functions inside them a decorator has an inner function which will be returned
+  by the decorator function.
+- When we call `simple_decorator` and pass `say_hello` in it the following will be the output.
+
+```shell
 Start
 Hello there human
 End
-````
-* Similarily the above can be done as follows:
-````python
+```
+
+- Similarily the above can be done as follows:
+
+```python
 def simple_decorator(fn):
     def wrapper():
         print("Start")
@@ -36,12 +41,15 @@ def simple_decorator(fn):
 @simple_decorator
 def say_hello():
     print("Hello there human")
-````
-We have called the ``@simple_decorator`` which will take `say_hello` as it's argument and do the same thing as we did previously. 
+```
+
+We have called the `@simple_decorator` which will take `say_hello` as it's argument and do the same thing as we did previously.
 The second way is the most commonly used way when dealing with function decorators.
 
 ### Reusing decorators
+
 Decorators can be reused, for example take a look at the following example, where we will print "hello there human" twice.
+
 ```python
 def simple_decorator(fn):
     def wrapper():
@@ -52,7 +60,9 @@ def simple_decorator(fn):
 def say_hello():
     print("Hello there human")
 ```
+
 ### Decorating Functions With Arguments
+
 It's not always the case that we decorate the function that doesn't take arguments. Let's consider the following case where our function `say_hello` takes an argument name and print out the name:
 
 ```python
@@ -70,7 +80,7 @@ say_hello("Crispen")
 
 ### A decorator that returns a value.
 
-To return values from a decorator function we have to be sure that our function that is decorated returns a value. In this case the `wrapper()` function should return the function. 
+To return values from a decorator function we have to be sure that our function that is decorated returns a value. In this case the `wrapper()` function should return the function.
 It's difficult to explain let's write some code to implement a decorator that returns a value.
 
 ```python
@@ -84,20 +94,28 @@ def say_hello(name):
     return name.upper()
 print(say_hello("Crispen"))
 ```
-In this example we created a decorator `simple_decorator` which takes a function in it in this case 
+
+In this example we created a decorator `simple_decorator` which takes a function in it in this case
 `say_hello` and `say_hello` accept name as it's parameter and return name converted to uppercase.
-* Then the wrapper function in the decorator will then returns another the result of the function that was accepted by the decorator.
+
+- Then the wrapper function in the decorator will then returns another the result of the function that was accepted by the decorator.
 
 ### Getting the names of decorators.
+
 In python if we call:
+
 ```python
-print(print.__name__) 
+print(print.__name__)
 ```
+
 We get `"print"` which is the name of the print function. We also want to say if we call:
+
 ```python
 print(say_hello.__name__)
 ```
-We want to get ``say_hello``. Let's try that.
+
+We want to get `say_hello`. Let's try that.
+
 ```python
 def simple_decorator(fn):
     def wrapper(*args, **kwargs):
@@ -109,10 +127,10 @@ def say_hello(name):
     return name.upper()
 print(say_hello.__name__)
 ```
- The  output is `wrapper` wow. So how do we get `say_hello`?. This is easy, we can use `functtool` decorator `wrapper` to do that let's se what we will get.
 
+The output is `wrapper` wow. So how do we get `say_hello`?. This is easy, we can use `functtool` decorator `wrapper` to do that let's se what we will get.
 
-````python
+```python
 import functools
 def simple_decorator(fn):
     @functools.wraps(fn)
@@ -124,11 +142,67 @@ def simple_decorator(fn):
 def say_hello(name):
     return name.upper()
 print(say_hello.__name__)
-````
-All we did was to call ``@functools.wraps(fn)`` in our decorator. The output will be `say_hello`
+```
+
+All we did was to call `@functools.wraps(fn)` in our decorator. The output will be `say_hello`
 
 ### A real world example.
+
 Let's say we have a function that prints the clock tick every second. By using decorators we can make our life very easy consider the following code:
+
+1. Example:
+
+> We want to create a decorator function that logs the return value of a function in a file called `logs.txt` we are going to call this function `logger`. Here is how we can implement it
+
+```py
+from datetime import datetime
+def logger(fn):
+    def wrapper(*args, **kwargs):
+        values = fn(*args, **kwargs)
+        with open("logs.txt", "a+") as f:
+            f.write(
+                "[{time}] : [{fname}]: {values}\n".format(
+                    fname=fn.__name__, time=datetime.now(), values=values
+                )
+            )
+        return values
+    return wrapper
+@logger
+def hi(name):
+    return f"Hello there {name}!"
+hi("John")
+hi("Peter")
+```
+
+2.  Example
+
+> In this second example we want to create a decorator function that logs how long the function took to execute. We are going to call this decorator `timer`
+
+```py
+import time
+def timer(fn):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        values = fn(*args, **kwargs)
+        elp = time.time() - start
+        print(
+            "'{fname}': took {s}s to complete execution".format(
+                s=elp, fname=fn.__name__
+            )
+        )
+        return values
+    return wrapper
+
+
+@timer
+def sleep(size):
+    time.sleep(size)
+    return size
+sleep(2)
+sleep(1)
+```
+
+3. Example:
 
 ```python
 import functools, time
@@ -137,7 +211,6 @@ def second_decorator(fn):
     def wrapper(*args, **kwargs):
         time.sleep(1)
         res = fn(*args, **kwargs)
-
         return res
     return wrapper
 
@@ -147,10 +220,12 @@ def timer(i):
 for i in range(10):
     print(timer(i))
 ```
+
 ### Decorators With Arguments
+
 Sometimes, it’s useful to pass arguments to your decorators. Let's take a look at the following example:
 
-````python
+```python
 import functools
 def repeat(n):
     def simple_decorator(fn):
@@ -165,11 +240,14 @@ def repeat(n):
 def say_hello(name):
     print("Hello " + name)
 say_hello("World")
-````
-* [Good Explanation](https://realpython.com/primer-on-python-decorators/)
+```
+
+- [Good Explanation](https://realpython.com/primer-on-python-decorators/)
 
 ### Classes as Decorators
+
 The following snippet shows how we can create class decorators.
+
 ```python
 import functools
 class ClassDecorator:
@@ -187,4 +265,5 @@ def hello():
 hello()
 hello()
 ```
+
 > More details and good explanation. [Ref](https://realpython.com/primer-on-python-decorators/)
