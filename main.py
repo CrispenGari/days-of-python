@@ -1,38 +1,51 @@
 from abc import abstractmethod, ABCMeta
 
 
-class IUser(metaclass=ABCMeta):
-    @classmethod
+class IDepartment(metaclass=ABCMeta):
     @abstractmethod
-    def hi(self, name: str) -> str:
-        """This is hi menthod"""
+    def __init__(self, employees):
+        """To be implemented"""
 
-
-class Student(IUser):
-    def hi(self, name):
-        print("Student {name}".format(name=name))
-
-
-class Manager(IUser):
-    def hi(self, name):
-        print("Manager {name}".format(name=name))
-
-
-class Other(IUser):
-    def hi(self, name):
-        print("Other {name}".format(name=name))
-
-
-class UserFactory:
     @staticmethod
-    def get_user(type: str):
-        if type.lower() == "student":
-            return Student()
-        if type.lower() == "manager":
-            return Manager()
-        return Other()
+    @abstractmethod
+    def print_department():
+        """"""
 
 
-UserFactory.get_user("student").hi("Bob")
-UserFactory.get_user("manager").hi("Bob")
-UserFactory.get_user("haha").hi("Bob")
+class Testing(IDepartment):
+    def __init__(self, employees):
+        self.employees = employees
+
+    def print_department(self):
+        print(f"Testing: {self.employees}")
+
+
+class Deploying(IDepartment):
+    def __init__(self, employees):
+        self.employees = employees
+
+    def print_department(self):
+        print(f"Development: {self.employees}")
+
+
+class Development(IDepartment):
+    def __init__(self, employees):
+        self.employees = employees
+        self.deps = list()
+        self.all_employees = employees
+
+    def add_department(self, dep):
+        self.deps.append(dep)
+        self.all_employees += dep.employees
+
+    def print_department(self):
+        print(f"Department Employees: {self.all_employees}")
+        for dep in self.deps:
+            dep.print_department()
+        print(f"Total Employees: {self.employees}")
+
+
+dep = Development(15)
+dep.add_department(Testing(10))
+dep.add_department(Deploying(3))
+dep.print_department()

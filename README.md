@@ -255,3 +255,135 @@ UserFactory.get_user("manager").hi("Bob")
 UserFactory.get_user("haha").hi("Bob")
 
 ```
+
+### Proxy Design Patten
+
+This design pattern allows us to wrap functionality among other classes in python.
+
+Let's say we have a class called person and this class has a static method to be implemented from `IUser` called `hi`. We can create a `ProxyUser` class and also make it to inherit from `IUser`
+
+```py
+from abc import abstractmethod, ABCMeta
+class IUser(metaclass=ABCMeta):
+    @classmethod
+    @abstractmethod
+    def hi(self, name: str) -> str:
+        """This is hi menthod"""
+class Student(IUser):
+    def hi(self, name):
+        print("Student {name}".format(name=name))
+
+class ProxyUser(IUser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.student = Student()
+    def hi(self, name: str):
+        self.student.hi(name)
+        print(f"Hi I am a proxy class: {name}")
+
+ProxyUser().hi("Bob")
+```
+
+With this flexibility we can call the `student` object in the `Proxy` class when we call the method `hi` on `ProxyUser` we also trigger the `hi` method in the student class.
+
+### Singleton Design Pattern
+
+The idea behind this is that we only have 1 class and this class will only have `1` instance. So let's go ahead and implement thats.
+
+```py
+from abc import abstractmethod, ABCMeta
+
+class ISession(metaclass=ABCMeta):
+    @staticmethod
+    @abstractmethod
+    def get_session():
+        """To be implemented"""
+
+class Session:
+    __instance = None
+    @staticmethod
+    def get_instance():
+        if Session.__instance is None:
+            Session("localhost", 5432)
+        return Session.__instance
+    def __init__(self, host: str, port: int) -> None:
+        if Session.__instance is not None:
+            pass
+            # raise Exception(f"{self.__class__.__name__} can only be initialized once.")
+        else:
+            self.host = host
+            self.port = port
+            Session.__instance = self
+    @staticmethod
+    def get_session():
+        return {"port": Session.__instance.port, "host": Session.__instance.host}
+```
+
+Now we can create a single instance of a `Session` class because of this logic. If we try to check the instance of `session` and `session1` they will be located in the same memory:
+
+```py
+session1 = Session("localhost", 5432)
+print(session1.get_session())
+print(session1.get_instance())
+session = Session("localhost", 5432)
+print(session.get_session())
+print(session.get_instance())
+```
+
+Output:
+
+```shell
+{'port': 5432, 'host': 'localhost'}
+<__main__.Session object at 0x0000018C15D39FA0>
+{'port': 5432, 'host': 'localhost'}
+<__main__.Session object at 0x0000018C15D39FA0>
+```
+
+### Composite Design Patten
+
+Let's say we have `IDepartment` which is the base interface for our departments `Testing` and `Deploying`. Each department has a method of printing the department employees. Then the base department class `Development` can print all the information about other departments including it's information. This is how it can be done.
+
+```py
+from abc import abstractmethod, ABCMeta
+
+class IDepartment(metaclass=ABCMeta):
+    @abstractmethod
+    def __init__(self, employees):
+        """To be implemented"""
+    @staticmethod
+    @abstractmethod
+    def print_department():
+        """"""
+
+class Testing(IDepartment):
+    def __init__(self, employees):
+        self.employees = employees
+    def print_department(self):
+        print(f"Testing: {self.employees}")
+
+class Deploying(IDepartment):
+    def __init__(self, employees):
+        self.employees = employees
+    def print_department(self):
+        print(f"Development: {self.employees}")
+
+class Development(IDepartment):
+    def __init__(self, employees):
+        self.employees = employees
+        self.deps = list()
+        self.all_employees = employees
+    def add_department(self, dep):
+        self.deps.append(dep)
+        self.all_employees += dep.employees
+
+    def print_department(self):
+        print(f"Department Employees: {self.all_employees}")
+        for dep in self.deps:
+            dep.print_department()
+        print(f"Total Employees: {self.employees}")
+
+```
+
+```py
+
+```
