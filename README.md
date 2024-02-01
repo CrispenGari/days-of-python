@@ -384,6 +384,276 @@ class Development(IDepartment):
 
 ```
 
+### Data Classes
+
+These are a cool python feature that we can use on our python class so that we won't define some `__method__` as they will be defined for us once we decorate the class with the `dataclass` decorator that comes from `dataclasses`. Let's consider the following example where we have a class called `Person`
+
+```py
+from dataclasses import dataclass
+@dataclass
+class Person:
+    name: str
+    age: str
+    gender: str
+person = Person("bob", 5, 7)
+print(person) # Person(name='bob', age=5, gender=7)
+```
+
+When defining the person class we might want to make the `person` object immutable for that we can specify the argument when decorating our class called `frozen`:
+
 ```py
 
+@dataclass(frozen=True)
+class Person:
+    name: str
+    age: str
+    gender: str
+person = Person("bob", 5, 7)
+person.age = 18 # this will throw an error
+print(person)
+```
+
+We can also specify our dataclass `Person` that it only takes in `keyword` arguments by passing the following options.
+
+```py
+@dataclass(frozen=True, kw_only=True)
+class Person:
+    name: str
+    age: str
+    gender: str
+person = Person(name="bob", age=5, gender="M") # only kwargs will be allowed
+```
+
+The good thing with dataclasses is that you can overide the default `__method__` that are in the dataclass for example let's overide the `__repr__()` method we can do it as follows:
+
+```py
+@dataclass(frozen=True, kw_only=True)
+class Person:
+    name: str
+    age: str
+    gender: str
+    def __repr__(self) -> str:
+        return "Person {}".format(self.name)
+person = Person(name="bob", age=5, gender="M")
+print(person) # Person bob
+```
+
+We can also set default values to dataclases let's have a look at the following example
+
+```py
+from dataclasses import dataclass, field
+import random
+import string
+
+def uuid():
+    return "".join(random.choices(string.ascii_lowercase, k=5))
+
+@dataclass(frozen=False, kw_only=True, slots=True)
+class Person:
+    name: str
+    age: str
+    gender: str
+    id: str = field(default_factory=uuid, init=False)
+    online: bool = True
+    colors: list[str] = field(
+        default_factory=list,
+    )
+    _search_str: str = field(init=False, repr=False)
+    def __post_init__(self):
+        self._search_str = f"{self.name}%20{self.age}"
+person = Person(name="bob", age=5, gender="M")
+print(person)
+
+```
+
+Now we have introduced another function called `field`. It takes in some number of arguments, for the default value of `id` we want to generate it using a function called `uuid` and for that we need to pass in an argument called `default_factory`, if we don't want to see a property in the `dander` method we can set `repr` to False. We have a `dander` method `__post_init__` which allows us to post initilize the `_search_str` when we create an instance of a `Person`. You can pass a lot of arguments in this `field` method.
+
+### Generics in Python `3.12`
+
+In this section we are going to have a look at how we can work with generics in `python`. Let's say we have a function that returns a first element in an array and we want to make this function generic. This is how we can achieve that befor and after python `3.12`
+
+Before:
+
+```py
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def get_first(ele:list[T])-> T:
+    return ele[0]
+strs = ['hi', 'hey']
+ints = [2, 4]
+
+val = get_first(strs) # str
+val = get_first(ints) # int
+
+```
+
+After:
+
+```py
+def get_first[T](ele: list[T]) -> T:
+    return ele[0]
+
+strs = ["hi", "hey"]
+ints = [2, 4]
+
+val = get_first(strs)  # str
+val = get_first(ints)  # int
+
+```
+
+Let's have a look at an example where we can use generics in python classes
+
+Before:
+
+```py
+from typing import  TypeVar, Generic
+from dataclasses import dataclass
+
+T = TypeVar("T")
+class Car(Generic[T]):
+    def __init__(self, car: T) -> None:
+        self.car = car
+    def set_car(self, car: T) -> None:
+        self.car = car
+    def get_car(self) -> T:
+        return self.car
+@dataclass(kw_only=True)
+class Vehicle:
+    name: str
+    license_plate: str
+
+car = Car(Vehicle(name="Audi", license_plate="DGB 56"))
+my_car = car.get_car() # type Vehicle
+
+```
+
+After:
+
+```py
+from dataclasses import dataclass
+class Car[T]:
+    def __init__(self, car: T) -> None:
+        self.car = car
+    def set_car(self, car: T) -> None:
+        self.car = car
+    def get_car(self) -> T:
+        return self.car
+@dataclass(kw_only=True)
+class Vehicle:
+    name: str
+    license_plate: str
+
+car = Car(Vehicle(name="Audi", license_plate="DGB 56"))
+my_car = car.get_car() # type Vehicle
+```
+
+We can restrict the type of a generic by using `bound` let's consider an example where we have a class `Plane`, `Car` and a `Boat` and all these classes are inheriting from a dataclass `Vehicle`.
+
+```py
+from typing import TypeVar, Generic
+from dataclasses import dataclass
+
+@dataclass(kw_only=True)
+class Vehicle:
+    name: str
+    def display(self) -> None:
+        print(f"Vehicle Name: {self.name}")
+
+class Boat(Vehicle):
+    def display(self) -> None:
+        print(f"Boat Name: {self.name}")
+class Plane(Vehicle):
+    def display(self) -> None:
+        print(f"Plane Name: {self.name}")
+class Car(Vehicle):
+    def display(self) -> None:
+        print(f"Car Name: {self.name}")
+```
+
+We want to create a registry class that will set bound on a certain type of a vehicle. We can do it as follows:
+
+Before:
+
+```py
+V = TypeVar("V", bound=Vehicle)
+class Registry(Generic[V]):
+    def __init__(self) -> None:
+        self.vehicles: list[V] = []
+
+    def add(self, v: V) -> None:
+        self.vehicles.append(v)
+
+    def display_all(self) -> None:
+        for v in self.vehicles:
+            v.display()
+
+registry = Registry[Car]()
+registry.add(Car(name="Jeep"))
+registry.add(Car(name="Toyota"))
+registry.add(Plane(name="Jet"))  # this is a type error
+registry.display_all()
+```
+
+If we want our `registry` to accept all the vehicle types and the or it subclass we can then do it as follows:
+
+```py
+registry = Registry[Vehicle]()
+registry.add(Car(name="Jeep"))
+registry.add(Boat(name="Yacht"))
+registry.add(Plane(name="Jet"))
+registry.display_all()
+```
+
+That was before now after python `3.12` we can do it as follows:
+
+```py
+
+class Registry[T: Vehicle]:
+    def __init__(self) -> None:
+        self.vehicles: list[T] = []
+    def add(self, v: T) -> None:
+        self.vehicles.append(v)
+    def display_all(self) -> None:
+        for v in self.vehicles:
+            v.display()
+
+registry = Registry[Car]()
+registry.add(Car(name="Jeep"))
+registry.add(Car(name="Toyota"))
+registry.add(Plane(name="Jet"))  # this is a type error
+registry.display_all()
+
+```
+
+If we want our `registry` to accept all the vehicle types and the or it subclass we can then do it as follows:
+
+```py
+registry = Registry[Vehicle]()
+registry.add(Car(name="Jeep"))
+registry.add(Boat(name="Yacht"))
+registry.add(Plane(name="Jet"))
+registry.display_all()
+```
+
+We can also constrain our `Registry` class so that it can take a `Car` or a `Boat` as follows:
+
+```py
+
+class Registry[T: (Car, Boat)]:
+    def __init__(self) -> None:
+        self.vehicles: list[T] = []
+
+    def add(self, v: T) -> None:
+        self.vehicles.append(v)
+
+    def display_all(self) -> None:
+        for v in self.vehicles:
+            v.display()
+
+registry = Registry[Car]()
+registry.add(Car(name="Jeep"))
+registry.add(Boat(name="Yacht"))
+registry.display_all()
 ```

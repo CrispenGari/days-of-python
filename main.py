@@ -1,51 +1,44 @@
-from abc import abstractmethod, ABCMeta
+from typing import TypeVar, Generic
+from dataclasses import dataclass
 
 
-class IDepartment(metaclass=ABCMeta):
-    @abstractmethod
-    def __init__(self, employees):
-        """To be implemented"""
+@dataclass(kw_only=True)
+class Vehicle:
+    name: str
 
-    @staticmethod
-    @abstractmethod
-    def print_department():
-        """"""
+    def display(self) -> None:
+        print(f"Vehicle Name: {self.name}")
 
 
-class Testing(IDepartment):
-    def __init__(self, employees):
-        self.employees = employees
-
-    def print_department(self):
-        print(f"Testing: {self.employees}")
+class Boat(Vehicle):
+    def display(self) -> None:
+        print(f"Boat Name: {self.name}")
 
 
-class Deploying(IDepartment):
-    def __init__(self, employees):
-        self.employees = employees
-
-    def print_department(self):
-        print(f"Development: {self.employees}")
+class Plane(Vehicle):
+    def display(self) -> None:
+        print(f"Plane Name: {self.name}")
 
 
-class Development(IDepartment):
-    def __init__(self, employees):
-        self.employees = employees
-        self.deps = list()
-        self.all_employees = employees
-
-    def add_department(self, dep):
-        self.deps.append(dep)
-        self.all_employees += dep.employees
-
-    def print_department(self):
-        print(f"Department Employees: {self.all_employees}")
-        for dep in self.deps:
-            dep.print_department()
-        print(f"Total Employees: {self.employees}")
+class Car(Vehicle):
+    def display(self) -> None:
+        print(f"Car Name: {self.name}")
 
 
-dep = Development(15)
-dep.add_department(Testing(10))
-dep.add_department(Deploying(3))
-dep.print_department()
+class Registry[T: (Car, Boat)]:
+    def __init__(self) -> None:
+        self.vehicles: list[T] = []
+
+    def add(self, v: T) -> None:
+        self.vehicles.append(v)
+
+    def display_all(self) -> None:
+        for v in self.vehicles:
+            v.display()
+
+
+registry = Registry[Car, Boat]()
+registry.add(Car(name="Jeep"))
+registry.add(Boat(name="Yacht"))
+registry.add()
+registry.display_all()
