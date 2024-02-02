@@ -1,44 +1,75 @@
-from typing import TypeVar, Generic
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Optional
+import contextlib
 
 
-@dataclass(kw_only=True)
-class Vehicle:
-    name: str
-
-    def display(self) -> None:
-        print(f"Vehicle Name: {self.name}")
+@dataclass
+class Post:
+    id: Optional[str]
+    title: str
 
 
-class Boat(Vehicle):
-    def display(self) -> None:
-        print(f"Boat Name: {self.name}")
+class IModel[T](ABC):
+    @abstractmethod
+    def get(self, id: int) -> T:
+        raise NotImplemented
+
+    @abstractmethod
+    def get_all(self) -> list[T]:
+        raise NotImplemented
+
+    @abstractmethod
+    def add(self, **kwargs: object) -> None:
+        raise NotImplemented
+
+    @abstractmethod
+    def update(self, id, **kwargs: object) -> None:
+        raise NotImplemented
+
+    @abstractmethod
+    def delete(self, id) -> None:
+        raise NotImplemented
 
 
-class Plane(Vehicle):
-    def display(self) -> None:
-        print(f"Plane Name: {self.name}")
+class Model[T](IModel[T]):
+    def __init__(self, model: T) -> None:
+        super().__init__()
+        self._Table = model
+
+    @contextlib.contextmanager
+    def connect(self):
+        with sqlite3.connect("hello.db") as conn:
+            yield conn.cursor()
+
+    def create_table(self) -> None:
+        """Table Created"""
+
+    def get(self, id: int) -> T:
+        # get a model and return it
+        return self._Table(id=2, title="hello")
+
+    def get_all(self) -> list[T]:
+        # get all model and return it
+        return [self._Table(id=2, title="hello")]
+
+    def add(self, title: str) -> T:
+        # add a model to a database
+        return self._Table(id=2, title=title)
+
+    def update(self, id, title: str) -> T:
+        # update model
+        return self._Table(id=2, title=title)
+
+    def delete(self, id) -> None:
+        # delete model
+        pass
 
 
-class Car(Vehicle):
-    def display(self) -> None:
-        print(f"Car Name: {self.name}")
-
-
-class Registry[T: (Car, Boat)]:
-    def __init__(self) -> None:
-        self.vehicles: list[T] = []
-
-    def add(self, v: T) -> None:
-        self.vehicles.append(v)
-
-    def display_all(self) -> None:
-        for v in self.vehicles:
-            v.display()
-
-
-registry = Registry[Car, Boat]()
-registry.add(Car(name="Jeep"))
-registry.add(Boat(name="Yacht"))
-registry.add()
-registry.display_all()
+if __name__ == "__main__":
+    model = Model[Post](Post)
+    model.add(title="hey")
+    model.add(title="hey")
+    p = model.get(7)
+    for post in model.get_all():
+        print(post)

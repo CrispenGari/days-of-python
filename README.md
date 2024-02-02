@@ -657,3 +657,127 @@ registry.add(Car(name="Jeep"))
 registry.add(Boat(name="Yacht"))
 registry.display_all()
 ```
+
+### The repository Pattern
+
+In this example we are going to have a look at a design patten called the `Repository` Pattern. Suppose we are building a simple `orm` database that does some simple `CRUD` operations on a `Post` we could do something that looks as follows:
+
+```py
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Post:
+    id: Optional[str]
+    title: str
+
+    @classmethod
+    def create_table(cls, db_name: str) -> None:
+        """Table Created"""
+    @classmethod
+    def get_post(cls, id: int, db_name: str) -> "Post":
+        # get a post and return it
+        return Post(id=2, title="hello")
+    @classmethod
+    def get_posts(cls, db_name: str) -> ["Post"]:
+        # get all post and return it
+        return [Post(id=2, title="hello")]
+    @classmethod
+    def add_post(cls, title: str, db_name: str) -> "Post":
+        # add a post to a database
+        return Post(id=2, title=title)
+    @classmethod
+    def update_post(cls, id, title: str, db_name: str) -> "Post":
+        # update posts
+        return Post(id=2, title=title)
+    @classmethod
+    def delete_post(cls, id, db_name: str) -> None:
+        # delete post
+        pass
+
+if __name__ == "__main__":
+    Post.create_table("hello.db")
+    Post.add_post(title="hey", db_name="hello.db")
+    Post.add_post(title="hey", db_name="hello.db")
+    for post in Post.get_posts(db_name="hello"):
+        print(Post)
+
+```
+
+That how we will do it before python `3.12`. The following example is how we will do it after this version of python.
+
+```py
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional
+import contextlib, sqlite3
+
+@dataclass
+class Post:
+    id: Optional[str]
+    title: str
+
+class IModel[T](ABC):
+    @abstractmethod
+    def get(self, id: int) -> T:
+        raise NotImplemented
+    @abstractmethod
+    def get_all(self) -> list[T]:
+        raise NotImplemented
+    @abstractmethod
+    def add(self, **kwargs: object) -> None:
+        raise NotImplemented
+    @abstractmethod
+    def update(self, id, **kwargs: object) -> None:
+        raise NotImplemented
+    @abstractmethod
+    def delete(self, id) -> None:
+        raise NotImplemented
+
+```
+
+First things first we are creating our abstract class `IModel` that will map all the required method to be implemented to by the child class `Model`. The `Model` class will take in a generic `T` and in the `init()` we will be taking an argument of a model called `Post`
+
+```py
+class Model[T](IModel[T]):
+    def __init__(self, model: T) -> None:
+        super().__init__()
+        self._Table = model
+    def create_table(self) -> None:
+        """Table Created"""
+
+    @contextlib.contextmanager
+    def connect(self):
+        with sqlite3.connect('hello.db') as conn:
+            yield conn.cursor()
+
+    def get(self, id: int) -> T:
+        with self.connect() as cursor:
+            cursor.execute("SELECT * FROM post WHERE id=2")
+            res = cursor.fetchone()
+        # get a model and return it
+        return self._Table(id=2, title="hello")
+    def get_all(self) -> list[T]:
+        # get all model and return it
+        return [self._Table(id=2, title="hello")]
+    def add(self, title: str) -> T:
+        # add a model to a database
+        return self._Table(id=2, title=title)
+    def update(self, id, title: str) -> T:
+        # update model
+        return self._Table(id=2, title=title)
+    def delete(self, id) -> None:
+        # delete model
+        pass
+
+if __name__ == "__main__":
+    model = Model[Post](Post)
+    model.add(title="hey")
+    model.add(title="hey")
+    p = model.get(7)
+    for post in model.get_all():
+        print(post)
+```
+
+With this we will be type safe for getting and from the model. And we made our implementation so generic that it can work with any kind of a model.
